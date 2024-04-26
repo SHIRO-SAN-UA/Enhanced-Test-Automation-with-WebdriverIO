@@ -6,9 +6,6 @@ describe("Chapter 10: Increased Flexibility - Writting Robust selectors and Redu
     await LoginPage.open();
     await LoginPage.stalelogin("tomsmith", "SuperSecretPassword!");
     await expect(SecurePage.flashAlert).toBeExisting();
-    await expect(SecurePage.flashAlert).toHaveTextContaining(
-      "You logged into a secure area!"
-    );
+    await expect(SecurePage.flashAlert).toHaveText(expect.stringContaining("You logged into a secure area!"));
   });
 });
-

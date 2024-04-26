@@ -15,9 +15,7 @@ describe("Chapter 5: Alter Egos: The Click Wrapper - Buring wait time of Dynamic
     await dynamicLoadingPage.clickStartWithHiddenElementAndSpinner();
 
     //Verify the hidden Hello World text appears after the spinner disappeared
-    await expect(dynamicLoadingPage.txtHelloWorld).toHaveTextContaining(
-      "Hello World"
-    );
+    await expect(dynamicLoadingPage.txtHelloWorld).toHaveText(expect.stringContaining("Hello World"));
 
     //Highlight the Hello World text
     await helpers.highlightOn(await dynamicLoadingPage.txtHelloWorld);
@@ -35,9 +33,7 @@ describe("Chapter 5: Alter Egos: The Click Wrapper - Buring wait time of Dynamic
     await dynamicLoadingPage.clickStartWithRenderedElementAndSpinner();
 
     //Verify the Hello World text was rendered after the spinner disappeared
-    await expect(dynamicLoadingPage.txtHelloWorld).toHaveTextContaining(
-      "Hello World"
-    );
+    await expect(dynamicLoadingPage.txtHelloWorld).toHaveText(expect.stringContaining("Hello World"));
 
     //Highlight the Hello World text for 5 seconds
     await helpers.highlightOn(await dynamicLoadingPage.txtHelloWorld);
@@ -47,41 +43,32 @@ describe("Chapter 5: Alter Egos: The Click Wrapper - Buring wait time of Dynamic
 });
 
 describe("Chapter 5: Intentional Fail Last clickAdv with pageSync and autoscroll", () => {
-
   it("should login with valid credentials", async () => {
     await LoginPage.open();
     await LoginPage.loginAdv("tomsmith", "SuperSecretPassword!");
     await expect(SecurePage.flashAlert).toBeExisting();
-    await expect(SecurePage.flashAlert).toHaveTextContaining(
-      "You logged into a secure area!"
-    );
+    await expect(SecurePage.flashAlert).toHaveText(expect.stringContaining("You logged into a secure area!"));
   });
 });
 
 describe("Chapter 5: Intentional Fail Last clickAdv", () => {
-
   it("will fail as the last element in loginFailLast() is a 'bogus' element", async () => {
     await LoginPage.open();
 
     // This line fails because the last element clicked in loginFailLast() is a non-existant 'bogus' element
     await LoginPage.loginFailLast("tomsmith", "SuperSecretPassword!");
-    
+
     // These lines do not execute because the previous line fails
     await expect(await SecurePage.flashAlert).toBeExisting();
-    await expect(await SecurePage.flashAlert).toHaveTextContaining(
-      "You logged into a secure area!"
-    );
+    await expect(await SecurePage.flashAlert).toHaveText(expect.stringContaining("You logged into a secure area!"));
   });
 });
 
 describe("Chapter 5: Pass with clickAdvIfExists", () => {
-
   it("will pass as the element before Submit in loginFailFirstIfExists() is soft assert 'bogus' element", async () => {
     LoginPage.open();
     await LoginPage.loginFailFirstIfExists("tomsmith", "SuperSecretPassword!");
     await expect(SecurePage.flashAlert).toBeExisting();
-    await expect(SecurePage.flashAlert).toHaveTextContaining(
-      "You logged into a secure area!"
-    );
+    await expect(SecurePage.flashAlert).toHaveText(expect.stringContaining("You logged into a secure area!"));
   });
 });

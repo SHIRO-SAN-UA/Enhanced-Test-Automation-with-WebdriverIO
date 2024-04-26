@@ -3,7 +3,7 @@ import SecurePage from "../pageObjects/secure.page";
 import DropdownPage from "../pageObjects/dropdown.page";
 
 describe("Chapter 11: Echo Location - Find elements by text without a Page Object Model", () => {
-  beforeEach(async () => {  
+  beforeEach(async () => {
     await LoginPage.open();
   });
 
@@ -13,26 +13,20 @@ describe("Chapter 11: Echo Location - Find elements by text without a Page Objec
     // Uses 'submit' type of element to find the submit button
     await LoginPage.loginWithoutPomSubmit("tomsmith", "SuperSecretPassword!");
     await expect(SecurePage.flashAlert).toBeExisting();
-    await expect(SecurePage.flashAlert).toHaveTextContaining(
-       "You logged into a secure area!"
-    );
+    await expect(SecurePage.flashAlert).toHaveText(expect.stringContaining("You logged into a secure area!"));
   });
 
   it(`should find 'username', 'password' fields and 'login' button with text only`, async () => {
-
     // Uses 'login' text to find the submit button
     await LoginPage.loginWithoutPom("tomsmith", "SuperSecretPassword!");
     await expect(SecurePage.flashAlert).toBeExisting();
-    await expect(SecurePage.flashAlert).toHaveTextContaining(
-       "You logged into a secure area!"
-    );
+    await expect(SecurePage.flashAlert).toHaveText(expect.stringContaining("You logged into a secure area!"));
   });
 
-
-it(`should find a dropdown list with text only`, async () => {
-  await LoginPage.open(`dropdown`);
-  // Uses 'login' text to find the submit button
-  await DropdownPage.selectOptionWithoutPom(`Option 1`);
-  await DropdownPage.selectOptionWithoutPom(`Option 2`);
-});
+  it(`should find a dropdown list with text only`, async () => {
+    await LoginPage.open(`dropdown`);
+    // Uses 'login' text to find the submit button
+    await DropdownPage.selectOptionWithoutPom(`Option 1`);
+    await DropdownPage.selectOptionWithoutPom(`Option 2`);
+  });
 });

@@ -48,25 +48,22 @@
     },
     "dependencies": {
         "@types/jasmine": "^5.1.2",
-        "@wdio/allure-reporter": "^8.14.0",
-        "@wdio/cli": "^8.14.4",
+        "@types/node": "^20.12.7",
+        "@wdio/allure-reporter": "^8.36.1",
+        "@wdio/cli": "^8.36.1",
         "@wdio/globals": "^8.14.3",
-        "@wdio/jasmine-framework": "^8.14.3",
-        "@wdio/local-runner": "^8.14.3",
-        "@wdio/spec-reporter": "^8.14.0",
+        "@wdio/jasmine-framework": "^8.36.1",
+        "@wdio/local-runner": "^8.36.1",
+        "@wdio/spec-reporter": "^8.36.1",
         "allure-commandline": "^2.23.0",
         "cross-env": "^7.0.3",
         "dotenv": "^16.3.1",
         "expect-webdriverio": "^4.2.7",
         "ts-node": "^10.9.1",
         "typescript": "^5.1.6",
-        "utility-types": "^3.10.0",
-        "wdio-chromedriver-service": "^8.1.1",
-        "wdio-geckodriver-service": "^5.0.2",
-        "wdio-lambdatest-service": "^2.0.3"
+        "utility-types": "^3.10.0"
     },
     "devDependencies": {
-        "chromedriver": "^119.0.1",
-        "geckodriver": "^4.0.5"
+        "wdio-lambdatest-service": "^2.1.3"
     }
 }

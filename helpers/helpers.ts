@@ -5,14 +5,12 @@
 import { ASB } from "./globalObjects";
 import allureReporter from "@wdio/allure-reporter";
 
-
 // "Ham wrapped in Bacon"
 // Allows for a quick revert to the original function
 // await clickAdv(await btnLogin); // Uses full framework
 // await click(await btnLogin); // Click uses minimal framework
 
-export async function click(element: WebdriverIO.Element | string
-): Promise<void> {
+export async function click(element: WebdriverIO.Element | string): Promise<void> {
   if (typeof element === "string") {
     // Partial framework solution Find the element as a xpath, CSS or text selector
     element = await $(await getValidElement(element, "button"));
@@ -57,31 +55,26 @@ export async function clickAdv(element: WebdriverIO.Element | string) {
       await log(`  PASS: Clicked selector "${ASB.get("SELECTOR")}"`);
     } catch (error: any) {
       errorMessage = error.message;
-
     }
-
   } else {
     // Element does not exist, but do not fail the test
     if (ASB.get(IF_EXISTS) === true) {
-
       await log(`  WARN: ClickIfExists - Skipped clicking selector "${ASB.get("SELECTOR")}" without failing the test`);
-      ASB.set(IF_EXISTS, false)
+      ASB.set(IF_EXISTS, false);
       success = true;
-
     } else {
       // Element does not exist, fail the test
       await log(`  FAIL: Selector "${ASB.get("SELECTOR")}" was not clicked.\n       ${errorMessage}`);
 
       // Descriptive fail message
-      await expect(ASB.get("SELECTOR")).toEqual(' to exist and be clickable');
+      await expect(ASB.get("SELECTOR")).toEqual(" to exist and be clickable");
       // Throw the error to stop the test
       //@ts-ignore
-      await element.click()
+      await element.click();
     }
   }
   return success;
 }
-
 
 export async function findVisibleElement(locators: string[], elementName: string): Promise<WebdriverIO.Element | null> {
   let visibleElement: WebdriverIO.Element | null = null;
@@ -123,7 +116,7 @@ export async function findFieldElement(nameOrId: string): Promise<WebdriverIO.El
     `input[id='${nameOrId}']`,
     `input[id*='${nameOrId}']`,
     `input[type='${nameOrId}']`,
-    `textarea[placeholder='${nameOrId}']`
+    `textarea[placeholder='${nameOrId}']`,
   ];
 
   return findVisibleElement(locators, nameOrId);
@@ -136,7 +129,7 @@ export async function findButtonElement(TypeOrText: string): Promise<WebdriverIO
     `button[name='${TypeOrText}']`,
     `button[id='${TypeOrText}']`,
     `button[id*='${TypeOrText}']`,
-    `button:contains('${TypeOrText}')`
+    `button:contains('${TypeOrText}')`,
   ];
 
   return findVisibleElement(locators, TypeOrText);
@@ -145,12 +138,11 @@ export async function findButtonElement(TypeOrText: string): Promise<WebdriverIO
 export async function findListElement(elementName: string): Promise<WebdriverIO.Element | null> {
   const locators = [
     `//select[contains(text(),"${elementName}")]`, //Standard select list
-    `//div[contains(text(),"${elementName}")]//following::input`  // Find a div with the text above a combobox
+    `//div[contains(text(),"${elementName}")]//following::input`, // Find a div with the text above a combobox
   ];
 
   return findVisibleElement(locators, elementName);
 }
-
 
 export async function findElementByText(elementName, elementType) {
   ASB.set("ELEMENT_FOUND_BY_TEXT", false);
@@ -158,26 +150,21 @@ export async function findElementByText(elementName, elementType) {
   switch (elementType) {
     case "button":
       newElement = await findButtonElement(elementName);
-      break
+      break;
     case "input":
       newElement = await findFieldElement(elementName);
       break;
     case "list":
       newElement = await findListElement(elementName);
       ASB.set("ELEMENT_FOUND_BY_TEXT", newElement !== null);
-
   }
 
   return newElement;
-
 }
 
-export async function getValidTelerikElement(
-  elementOrString: WebdriverIO.Element | string,
-  elementType: string
-): Promise<WebdriverIO.Element> {
+export async function getValidTelerikElement(elementOrString: WebdriverIO.Element | string, elementType: string): Promise<WebdriverIO.Element> {
   let found: Boolean = false;
-  let element: WebdriverIO.Element
+  let element: WebdriverIO.Element;
 
   // Scroll down until found
   do {
@@ -197,39 +184,34 @@ export async function getValidTelerikElement(
   return element;
 }
 
-export async function getValidElement(
-  elementOrString: WebdriverIO.Element | string,
-  elementType: string
-): Promise<WebdriverIO.Element> {
+export async function getValidElement(elementOrString: WebdriverIO.Element | string, elementType: string): Promise<WebdriverIO.Element> {
   let found: boolean = true;
   let element: WebdriverIO.Element;
 
   let newSelector: string = "";
   let newElement: any = element;
 
-  let elements: WebdriverIO.Element[];
+  let elements: WebdriverIO.ElementArray;
   let normalizedElementType: string = "";
   let elementName: string = "";
-  //Find as string 
-  let selector: string
-  let elementText: string = ""
+  //Find as string
+  let selector: string;
+  let elementText: string = "";
 
   // Find elements based on string alone
   if (typeof elementOrString === "string") {
-
-
     let initialElementType: string; // Declare initialElementType variable
     let eleText = elementOrString;
     found = false;
 
-    // Any close matches for this text string? 
+    // Any close matches for this text string?
     // CSS for Input
 
     switch (elementType) {
       case "button":
         // CSS for Button by type
         // Example: <button type="submit" class="btn btn-primary">Submit</button>
-        selector = `button[type='${eleText}']`
+        selector = `button[type='${eleText}']`;
         ASB.set("SELECTOR", selector);
 
         elements = await browser.$$(selector);
@@ -238,9 +220,8 @@ export async function getValidElement(
         // xPath for Button containing an element that contains text
         // Example: <button class="radius" type="submit"><i class="fa fa-2x fa-sign-in">Login</i></button>
         if (!found) {
-          selector = `//button/*[text()='${eleText}']`
+          selector = `//button/*[text()='${eleText}']`;
           ASB.set("SELECTOR", selector);
-
         }
         elements = await browser.$$(selector);
         found = elements.length > 0;
@@ -248,34 +229,30 @@ export async function getValidElement(
         // xPath for Button containing an element that contains text with transient spaces
         // <button class="radius" type="submit"><i class="fa fa-2x fa-sign-in"> Login</i></button>
         if (!found) {
-          selector = `//button/*[contains(text(),'${eleText}')]`
+          selector = `//button/*[contains(text(),'${eleText}')]`;
           ASB.set("SELECTOR", selector);
-
         }
         break;
 
       case "field":
-        selector = `input[id='${eleText}']`
+        selector = `input[id='${eleText}']`;
         ASB.set("SELECTOR", selector);
 
         elements = await browser.$$(selector);
         found = elements.length > 0;
 
         if (!found) {
-          selector = `input[name='${eleText}']`
+          selector = `input[name='${eleText}']`;
           ASB.set("SELECTOR", selector);
-
         }
         break;
 
       case "list":
-        selector = `select[id='${eleText}']`
+        selector = `select[id='${eleText}']`;
         ASB.set("SELECTOR", selector);
 
         break;
-
     }
-
 
     elements = await browser.$$(selector);
     found = elements.length > 0;
@@ -310,7 +287,7 @@ export async function getValidElement(
    * Get a collection of matching elements
    */
   newElement = element;
-  selector = newElement.selector
+  selector = newElement.selector;
   ASB.set("SELECTOR", selector);
 
   try {
@@ -331,14 +308,10 @@ export async function getValidElement(
 
       // Get the element name from the xpath or CSS selector
       if (selector.startsWith("//") || selector.startsWith("(//")) {
-
         elementName = selector.match(/=".*"/)[0].slice(2, -1);
-
       } else {
-
         // Extract text from CSS selector
         if (selector.includes("'") || selector.includes(`"`)) {
-
           // Extract 'text' or "text" from CSS selector
           if (selector.includes("'")) {
             const index = selector.indexOf("'");
@@ -360,22 +333,18 @@ export async function getValidElement(
 
       switch (normalizedElementType) {
         case "//a":
-
           newSelector = `//button[contains(@type,"${elementName}")]`;
           ASB.set("SELECTOR", newSelector);
 
           break;
 
         case "//button":
-
           newSelector = `//a[contains(text(),"${elementName}")]`;
           ASB.set("SELECTOR", newSelector);
           found = await isElementVisible(await $(newSelector));
           break;
 
         case "//input":
-
-
           newSelector = `//input[contains(@id,"${elementName}")]`;
           ASB.set("SELECTOR", newSelector);
           found = await isElementVisible(await $(newSelector));
@@ -386,7 +355,6 @@ export async function getValidElement(
           break;
 
         case "//select":
-
           // Find a div with the text above a combobox
           newSelector = `//div[contains(text(),"${elementName}")]//following::input`;
           ASB.set("SELECTOR", newSelector);
@@ -394,7 +362,6 @@ export async function getValidElement(
           break;
 
         case "//*":
-
           newSelector = `//*[contains(@id,"${elementName}")]`;
           ASB.set("SELECTOR", newSelector);
           found = await isElementVisible(await $(newSelector));
@@ -409,9 +376,7 @@ export async function getValidElement(
       found = await isElementVisible(newElement);
       // Successful class switch
       if (found) {
-        await log(
-          `  WARN: Replaced selector "${selector}" \n                   with selector "${newSelector}"`
-        );
+        await log(`  WARN: Replaced selector "${selector}" \n                   with selector "${newSelector}"`);
       }
     }
   } catch (error) {
@@ -421,14 +386,13 @@ export async function getValidElement(
   if (!found) {
     await log(`  ERROR: Unable to find selector "${selector}" class switched as selector "${newSelector}"`);
   } else {
-    highlightOn(newElement) // Highlight the element
+    highlightOn(newElement); // Highlight the element
   }
   // set switchboard find success
-  ASB.set("ELEMENT_EXISTS", found)
+  ASB.set("ELEMENT_EXISTS", found);
 
   return newElement;
 }
-
 
 async function getElementType(element: WebdriverIO.Element) {
   // get from existing element
@@ -443,16 +407,14 @@ async function getElementType(element: WebdriverIO.Element) {
   return tagName;
 }
 
-
 /**
-* Returns the first non-null property from the prioritized list: 'name', 'placeholder', 'area-label'.
-* if the Element class is an input field, the parent div text is returned.
-* @param {WebdriverIO.Element} element - The WebdriverIO element to get the name of the field
-* @returns {string | null} The field name, or null if no properties have a value
-*/
+ * Returns the first non-null property from the prioritized list: 'name', 'placeholder', 'area-label'.
+ * if the Element class is an input field, the parent div text is returned.
+ * @param {WebdriverIO.Element} element - The WebdriverIO element to get the name of the field
+ * @returns {string | null} The field name, or null if no properties have a value
+ */
 
 async function getFieldName(element: WebdriverIO.Element) {
-
   // Get the 'name' property of the element
   const name = await element.getAttribute("name");
   if (name) return name;
@@ -468,16 +430,16 @@ async function getFieldName(element: WebdriverIO.Element) {
   // Return the 'class' property of the element if others are empty
   const className = await element.getAttribute("class");
 
-  if (className == "input") {  // combobox
+  if (className == "input") {
+    // combobox
     // Find the first parent div element using XPath
-    const parentDivElement = await element.$('ancestor::div[1]');
+    const parentDivElement = await element.$("ancestor::div[1]");
     return await parentDivElement.getText();
   }
   return className;
 }
 
 async function getListName(element: WebdriverIO.Element) {
-
   // Get the 'name' property of the element
   const ariaLable = await element.getAttribute("aria-label");
   if (ariaLable) return ariaLable;
@@ -518,42 +480,25 @@ export function getToday(offset: number = 0, format: string = "dd-mm-yyyy") {
   currentDate.setDate(currentDate.getDate() + offset);
   return currentDate.toLocaleDateString(undefined, {
     year: format.includes("yyyy") ? "numeric" : undefined,
-    month: format.includes("mm")
-      ? "2-digit"
-      : format.includes("m")
-        ? "numeric"
-        : undefined,
-    day: format.includes("dd")
-      ? "2-digit"
-      : format.includes("d")
-        ? "numeric"
-        : undefined,
+    month: format.includes("mm") ? "2-digit" : format.includes("m") ? "numeric" : undefined,
+    day: format.includes("dd") ? "2-digit" : format.includes("d") ? "numeric" : undefined,
   });
 }
 
-export async function highlightOn(
-  element: WebdriverIO.Element,
-  color: string = "green"
-): Promise<boolean> {
+export async function highlightOn(element: WebdriverIO.Element, color: string = "green"): Promise<boolean> {
   let ELEMENT_SELECTOR: any;
   let visible: boolean = true;
   try {
     ELEMENT_SELECTOR = await element.selector;
     try {
-      await browser.execute(
-        `arguments[0].style.border = '5px solid ${color}';`,
-        element
-      );
+      await browser.execute(`arguments[0].style.border = '5px solid ${color}';`, element);
       visible = await isElementVisible(element);
     } catch (error: any) {
       // Handle stale element
       const newElement = await browser.$(ELEMENT_SELECTOR);
       ASB.set("element", newElement);
       ASB.set("staleElement", true);
-      await browser.execute(
-        `arguments[0].style.border = '5px solid ${color}';`,
-        newElement
-      );
+      await browser.execute(`arguments[0].style.border = '5px solid ${color}';`, newElement);
     }
   } catch (error) {
     // Element no longer exists
@@ -562,9 +507,7 @@ export async function highlightOn(
   return visible;
 }
 
-export async function highlightOff(
-  element: WebdriverIO.Element
-): Promise<boolean> {
+export async function highlightOff(element: WebdriverIO.Element): Promise<boolean> {
   let visible: boolean = true;
   try {
     await browser.execute(`arguments[0].style.border = "0px";`, element);
@@ -575,9 +518,7 @@ export async function highlightOff(
   return visible;
 }
 
-export async function isElementVisible(
-  element: WebdriverIO.Element
-): Promise<boolean> {
+export async function isElementVisible(element: WebdriverIO.Element): Promise<boolean> {
   try {
     const displayed = await element.isDisplayed();
     return displayed;
@@ -592,17 +533,14 @@ function isEmpty(text: string | null): boolean {
   return false;
 }
 
-export async function isElementInViewport(
-  element: WebdriverIO.Element
-): Promise<boolean> {
-
+export async function isElementInViewport(element: WebdriverIO.Element): Promise<boolean> {
   // This statement returns true if the element off the top of the the viewport
-  let isInViewport = true
-  let viewportHeight = (await browser.getWindowSize()).height
+  let isInViewport = true;
+  let viewportHeight = (await browser.getWindowSize()).height;
   let y = await element.getLocation("y");
   let x = await element.getLocation("x");
   //if the element y is between 0 and the viewport height, it is in the viewport
-  if ((y < 0) || (y > viewportHeight)) {
+  if (y < 0 || y > viewportHeight) {
     isInViewport = false;
   } else {
     isInViewport = await isElementVisible(element);
@@ -626,13 +564,13 @@ async function isExists(element: WebdriverIO.Element) {
  * @param message
  */
 
-const ANSI_PASS = `\x1b[38;2;0;255;0m` // GREEN
-const ANSI_FAIL = `\x1b[38;2;255;0;0m`    // RED
-const ANSI_WARNING = `\x1b[38;2;255;255;0m`  // YELLOW
-const ANSI_LOCATOR = `\x1b[38;2;200;150;255m`  // Light Purple
-const ANSI_STRING = `\x1b[38;2;173;216;230m`  // Light Blue TEXT entered into a field
-const ANSI_TEXT = `\x1b[97m`  // White TEXT
-const ANSI_RESET = `\x1b[0m` //Reset
+const ANSI_PASS = `\x1b[38;2;0;255;0m`; // GREEN
+const ANSI_FAIL = `\x1b[38;2;255;0;0m`; // RED
+const ANSI_WARNING = `\x1b[38;2;255;255;0m`; // YELLOW
+const ANSI_LOCATOR = `\x1b[38;2;200;150;255m`; // Light Purple
+const ANSI_STRING = `\x1b[38;2;173;216;230m`; // Light Blue TEXT entered into a field
+const ANSI_TEXT = `\x1b[97m`; // White TEXT
+const ANSI_RESET = `\x1b[0m`; //Reset
 ASB.set("ANSI_COLOR", ANSI_RESET);
 let LAST_MESSAGE: string = "";
 let LAST_MESSAGE_COUNT: number = 0;
@@ -646,7 +584,6 @@ export async function log(message: any): Promise<void> {
   LAST_MESSAGE_COUNT = ASB.get("LAST_MESSAGE_COUNT");
 
   if (LAST_MESSAGE === message) {
-
     ASB.set("LAST_MESSAGE_COUNT", LAST_MESSAGE_COUNT++);
     return;
   }
@@ -664,36 +601,34 @@ export async function log(message: any): Promise<void> {
   try {
     if (typeof message === "string" || typeof message === "number") {
       if (message) {
-
         if (messageString.toString().includes(`[object Promise]`)) {
-          messageString = (`--->  WARN: ${message} \n      Promise object detected. async function call missing await keyword.`);
+          messageString = `--->  WARN: ${message} \n      Promise object detected. async function call missing await keyword.`;
           console.trace();
         }
 
         if (messageString.includes("WARN: ")) {
-          messageString = ANSI_WARNING + messageString + " " + ANSI_RESET
+          messageString = ANSI_WARNING + messageString + " " + ANSI_RESET;
           ASB.set("ANSI_COLOR", ANSI_WARNING);
         } else if (messageString.includes("FAIL: ") || messageString.includes("ERROR: ") || messageString.includes("Promise")) {
-          messageString = ANSI_FAIL + messageString + " " + ANSI_RESET
+          messageString = ANSI_FAIL + messageString + " " + ANSI_RESET;
           ASB.set("ANSI_COLOR", ANSI_FAIL);
         } else if (messageString.includes("PASS: ")) {
           // PASS
-          messageString = ANSI_PASS + message + " "
+          messageString = ANSI_PASS + message + " ";
           ASB.set("ANSI_COLOR", ANSI_PASS);
         } else {
-          messageString = ANSI_TEXT + message + " " + ANSI_RESET
+          messageString = ANSI_TEXT + message + " " + ANSI_RESET;
           ASB.set("ANSI_COLOR", ANSI_RESET);
         }
 
         //Send colored content to Debug console
         //Highlight CSS and XPath selectors in Purple case-insensitive to 'Selector' and 'selector'
         // Set case ignore flag (i) and global flag (g) to replace all instances
-        let regex = /Selector ['"](.*?)['"] /ig;
+        let regex = /Selector ['"](.*?)['"] /gi;
 
         if (regex.test(messageString)) {
           regex.lastIndex = 0; // Reset the regex index to make multiple passes
           messageString = messageString.replace(regex, `selector "${ANSI_LOCATOR}$1${ASB.get("ANSI_COLOR")}" `);
-
         } else {
           // Highlight accent marks, single and double quoted strings surrounded in spaces in Blue
           messageString = messageString.replace(/ `([^`]+)` /g, ` \`${ANSI_STRING}$1${ASB.get("ANSI_COLOR")}\` `);
@@ -718,14 +653,11 @@ export async function log(message: any): Promise<void> {
  * console.log(maskedString); // Output: 'Su****************d!'
  */
 function maskValue(str: string): string {
-  return str.slice(0, 2) + str.slice(2, -2).replace(/./g, '*') + str.slice(-2);
+  return str.slice(0, 2) + str.slice(2, -2).replace(/./g, "*") + str.slice(-2);
 }
 
 function maskPassword(password: string): string {
-  return password.replace(
-    /^(.{2})(.*)(.{2})$/,
-    "$1" + "*".repeat(password.length - 4) + "$3"
-  );
+  return password.replace(/^(.{2})(.*)(.{2})$/, "$1" + "*".repeat(password.length - 4) + "$3");
 }
 
 function normalizeElementType(elementType: string) {
@@ -763,10 +695,7 @@ function normalizeElementType(elementType: string) {
  */
 let LAST_URL: String = "";
 
-export async function pageSync(
-  ms: number = 25,
-  waitOnSamePage: boolean = false
-): Promise<boolean> {
+export async function pageSync(ms: number = 25, waitOnSamePage: boolean = false): Promise<boolean> {
   await waitForSpinner();
 
   // Pessimistic result
@@ -846,10 +775,7 @@ export async function pageSync(
     const duration = endTime - startTime;
 
     if (duration > timeout) {
-      await log(
-        `  WARN: pageSync() completed in ${duration / 1000
-        } sec  (${duration} ms) `
-      );
+      await log(`  WARN: pageSync() completed in ${duration / 1000} sec  (${duration} ms) `);
     } else {
       //log(`  pageSync() completed in ${duration} ms`); // Optional debug messaging
     }
@@ -868,10 +794,7 @@ export async function setValueAdvIfExists(element: WebdriverIO.Element) {
 // Allows for a quick revert to the original function
 // await setValueAdv(await fldFirstName, "Gene"); // Uses full framework
 // await setValue(await fldFirstName, "Gene"); // Uses minimal or no framework support
-export async function setValue(
-  inputField: WebdriverIO.Element | string,
-  item: string
-): Promise<void> {
+export async function setValue(inputField: WebdriverIO.Element | string, item: string): Promise<void> {
   //@ts-ignore
   if (typeof inputField === "string") {
     // Partial framework solution Find the element as a xpath, CSS or text selector
@@ -880,28 +803,24 @@ export async function setValue(
     // This is the non-framework option
     // this.log (`FAIL: The standard setValue() function only supports WebdriverIO elements.\r\n{$element} is a string. Use setValue(strObject, item) instead.`)
   }
-  return await (inputField.selectByVisibleText(item));
+  return await inputField.selectByVisibleText(item);
 }
 
-export async function setValueAdv(
-  inputField: WebdriverIO.Element | string,
-  text: string
-): Promise<boolean> {
+export async function setValueAdv(inputField: WebdriverIO.Element | string, text: string): Promise<boolean> {
   let success: boolean = false;
 
   // Take an string or element and return a valid element - set EXISTS in the switchboard
   inputField = await getValidElement(inputField, "field");
 
-
   const SELECTOR = inputField.selector.toString();
 
   let newValue: string = replaceTags(text);
-  let scrubbedValue: string = newValue
-  let fieldName: string = await getFieldName(inputField)
+  let scrubbedValue: string = newValue;
+  let fieldName: string = await getFieldName(inputField);
 
   //Mask Passwords in output
   if (fieldName.includes("ssword")) {
-    scrubbedValue = maskValue(scrubbedValue)
+    scrubbedValue = maskValue(scrubbedValue);
   }
 
   await log(`Entering "${scrubbedValue}" into selector "${SELECTOR}"`);
@@ -934,17 +853,12 @@ export async function setValueAdv(
 
     success = true;
   } catch (error: any) {
-
     if (ASB.get(IF_EXISTS) === true) {
       await log(`  WARN: setValueAdvIfExists - Skipped entering "${scrubbedValue}" in selector "${SELECTOR}" without failing the test`);
-      ASB.set(IF_EXISTS, false)
+      ASB.set(IF_EXISTS, false);
       return true;
-
     } else {
-
-      await log(
-        `  ERROR: ${SELECTOR} was not populated with "${scrubbedValue}".\n       ${error.message}`
-      );
+      await log(`  ERROR: ${SELECTOR} was not populated with "${scrubbedValue}".\n       ${error.message}`);
       // Throw the error to stop the test, still masking password
       await inputField.setValue(scrubbedValue);
     }
@@ -1010,10 +924,10 @@ export async function scrollIntoView(element: WebdriverIO.Element) {
   await highlightOn(element);
   await element.scrollIntoView({ block: "center", inline: "center" });
 
-  let viewportHeight = (await browser.getWindowSize()).height
+  let viewportHeight = (await browser.getWindowSize()).height;
   let lastY = 0;
 
-  while (await isElementInViewport(element) === false) {
+  while ((await isElementInViewport(element)) === false) {
     // Check if object scrolled off the top of the page
     await waitForElementToStopMoving(element, 2000);
 
@@ -1023,20 +937,20 @@ export async function scrollIntoView(element: WebdriverIO.Element) {
       // scolls down and sets END_OF_PAGE if the element is at the bottom of the page
       scrollDown();
       // exit if the element is in the top 1/3 of the viewport
-      if (elementY < (viewportHeight / 3)) {
+      if (elementY < viewportHeight / 3) {
         break;
       }
     } else {
       // Scrolls up and sets END_OF_PAGE if the element is at the top of the page
       scrollUp();
       // exit if the element is in the top 1/3 of the viewport
-      if (elementY > (viewportHeight / 3)) {
+      if (elementY > viewportHeight / 3) {
         break;
       }
     }
 
     // exit if the element never moved
-    if (ASB.get("END_OF_PAGE") || (lastY === elementY)) {
+    if (ASB.get("END_OF_PAGE") || lastY === elementY) {
       break;
     }
 
@@ -1046,9 +960,7 @@ export async function scrollIntoView(element: WebdriverIO.Element) {
 }
 
 // Get the Y coordinate of the element to determin if the scroll command worked
-export async function getElementY(element: WebdriverIO.Element)
-  : Promise<number> {
-
+export async function getElementY(element: WebdriverIO.Element): Promise<number> {
   let rect = await browser.execute(function (el) {
     return (el as unknown as HTMLElement).getBoundingClientRect();
   }, element);
@@ -1069,15 +981,13 @@ export async function scrollUp(scrollValue = 100) {
 export async function isEndOfPage() {
   ASB.set("END_OF_PAGE", false);
 
-  let y = await $('//*').getLocation("y");
+  let y = await $("//*").getLocation("y");
   if (ASB.get("LAST_Y") === y) {
     ASB.set("END_OF_PAGE", true);
   } else {
-    ASB.set("LAST_Y", y)
+    ASB.set("LAST_Y", y);
   }
 }
-
-
 
 export async function sleep(ms: number) {
   await log(`Waiting ${ms} ms...`);
@@ -1088,10 +998,7 @@ export async function sleep(ms: number) {
 // Allows for a quick revert to the original function
 // await selectAdv(await lstMonth, "January"); // Uses full framework
 // await select(await lstMonth, "January"); // Uses minimal or no framework support
-export async function select(
-  listElement: WebdriverIO.Element | string,
-  item: string
-): Promise<void> {
+export async function select(listElement: WebdriverIO.Element | string, item: string): Promise<void> {
   //@ts-ignore
   if (typeof listElement === "string") {
     // Partial framework solution Find the element as a xpath, CSS or text selector
@@ -1100,10 +1007,8 @@ export async function select(
     // This is the non-framework option
     // this.log (`FAIL: The standard select() function only supports WebdriverIO elements.\r\n{$element} is a string. Use selectAdv(strObject, item) instead.`)
   }
-  return await (listElement.selectByVisibleText(item));
+  return await listElement.selectByVisibleText(item);
 }
-
-
 
 export async function waitForSpinner(): Promise<boolean> {
   let spinnerDetected: boolean = false;
@@ -1117,8 +1022,7 @@ export async function waitForSpinner(): Promise<boolean> {
   if (found) {
     const startTime = performance.now();
     // display this message in yellow
-    await log(
-      `  ${ANSI_WARNING}Spinner detected...`)
+    await log(`  ${ANSI_WARNING}Spinner detected...`);
 
     spinnerDetected = true;
     try {
@@ -1143,7 +1047,6 @@ export async function waitForSpinner(): Promise<boolean> {
     await log(
       `  ${ANSI_PASS}Spinner Elapsed time: ${Math.floor(performance.now() - startTime)} ms (${Math.round((performance.now() - startTime) / 1000)} sec)`
     );
-
   }
 
   return spinnerDetected;
@@ -1156,16 +1059,11 @@ export async function selectAdvIfExists(element: WebdriverIO.Element) {
   return result;
 }
 
-
-
-export async function selectAdv(
-  listElement: WebdriverIO.Element | string,
-  item: string
-): Promise<boolean> {
+export async function selectAdv(listElement: WebdriverIO.Element | string, item: string): Promise<boolean> {
   let success: boolean = false;
-  let itemValue: String = "No Item selected"
-  let listItems: WebdriverIO.Element[]
-  let textContent: string = " "
+  let itemValue: String = "No Item selected";
+  let listItems: WebdriverIO.ElementArray;
+  let textContent: string = " ";
 
   // Empty item list - do nothing
   if (item.length === 0) {
@@ -1179,20 +1077,19 @@ export async function selectAdv(
   await scrollIntoView(validListElement);
   // Get the name of the element
 
-  let selector = validListElement.selector.toString()
+  let selector = validListElement.selector.toString();
   let isXPath = selector.includes("//");
 
-
   if (!isXPath) {
-    let cssSelector = selector
+    let cssSelector = selector;
     let xpath = await browser.execute(function (cssSelector) {
       let element = document.querySelector(cssSelector);
-      let xpath = '';
+      let xpath = "";
       //@ts-ignore - TS does not like the element variable, but this works
       for (; element && element.nodeType == 1; element = element.parentNode) {
         let id = Array.prototype.indexOf.call(element.parentNode.childNodes, element) + 1;
-        id > 1 ? (id = '[' + id + ']') : (id = '');
-        xpath = '/' + element.tagName + id + xpath;
+        id > 1 ? (id = "[" + id + "]") : (id = "");
+        xpath = "/" + element.tagName + id + xpath;
       }
       return xpath;
     }, cssSelector);
@@ -1209,26 +1106,23 @@ export async function selectAdv(
 
   if (isCombobox) {
     //@ts-ignore
-    await listElement.doubleClick() //Selects all the text in the combobox
-
+    await listElement.doubleClick(); //Selects all the text in the combobox
 
     // Allow user to pass a number like 3 for March
-    if (typeof (item) === 'number') {
-
+    if (typeof item === "number") {
       // Try number select
       const index: number = item;
       try {
         await (await $(`//span[normalize-space()='${item}']`)).click();
-        await browser.pause(125) // Wait for box to open
+        await browser.pause(125); // Wait for box to open
         itemValue = await validListElement.getText();
         // Report actual item selected
-        global.log(`  Item selected: "${itemValue}"`)
+        global.log(`  Item selected: "${itemValue}"`);
         success = true;
       } catch (error: any) {
-
         if (ASB.get(IF_EXISTS) === true) {
           await log(`  WARN: SelectAdvIfExists - Skipped selecting "${item}" in combobox selector \`${ASB.get("ELEMENT_SELECTOR")}\` without failing the test`);
-          ASB.set(IF_EXISTS, false)
+          ASB.set(IF_EXISTS, false);
           return true;
         }
 
@@ -1237,11 +1131,11 @@ export async function selectAdv(
       }
     } else {
       // Clear the field.
-      await validListElement.click() // Select All Clear Mac and Windows
-      await browser.keys(['Home']);
-      await browser.keys(['Shift', 'End']);
-      await browser.keys(['Delete']);
-      await browser.keys(`${item}`)
+      await validListElement.click(); // Select All Clear Mac and Windows
+      await browser.keys(["Home"]);
+      await browser.keys(["Shift", "End"]);
+      await browser.keys(["Delete"]);
+      await browser.keys(`${item}`);
 
       await browser.pause(300); // Wait for the list to expand
 
@@ -1249,70 +1143,64 @@ export async function selectAdv(
       let items: string[] = []; // List of strings in the combobox
       let found = false;
       try {
-        listItems = await browser.$$(`//li/*`)
+        listItems = await browser.$$(`//li/*`);
 
         for (const listItem of listItems) {
-          highlightOn(listItem) // Highlight the element
-          items.push(await listItem.getText())
+          highlightOn(listItem); // Highlight the element
+          items.push(await listItem.getText());
 
-          if ((await listItem.getText()).includes(item)) {  // Found the element
-            found = true
+          if ((await listItem.getText()).includes(item)) {
+            // Found the element
+            found = true;
             break;
           }
-          highlightOff(listItem) // Highlight the element
+          highlightOff(listItem); // Highlight the element
         }
-
-
       } catch (error) {
         // no such item
         if (ASB.get(IF_EXISTS) === true) {
           await log(`  WARN: SelectAdvIfExists - Skipped selecting "${item}" in selector "${ASB.get("ELEMENT_SELECTOR")}" without failing the test`);
-          ASB.set(IF_EXISTS, false)
+          ASB.set(IF_EXISTS, false);
           return true;
         }
 
-        listItems = await browser.$$(`//li/*`)
+        listItems = await browser.$$(`//li/*`);
         for (const listItem of listItems) {
-          textContent += await listItem.getText() + " | "; // Get the text content of the element
+          textContent += (await listItem.getText()) + " | "; // Get the text content of the element
         }
-        await log(`  ERROR: "${item}" was not found in combobox: \n ${textContent}`)
+        await log(`  ERROR: "${item}" was not found in combobox: \n ${textContent}`);
       }
-      await browser.keys('Enter');
+      await browser.keys("Enter");
     }
-
   } else {
-
     try {
       // Get the list of options in the select element
       const optionsList: string = await getListValues(validListElement);
       console.log(optionsList); // This will print the list of options text in the select element
 
-      if (typeof (item) === 'number') {
+      if (typeof item === "number") {
         const index: number = item;
         await (await validListElement).selectByIndex(index);
       } else {
-        await (await validListElement).selectByVisibleText(item)
+        await (await validListElement).selectByVisibleText(item);
       }
-      global.log(`  Item selected: "${item}"`)
+      global.log(`  Item selected: "${item}"`);
       success = true;
     } catch (error: any) {
       if (ASB.get(IF_EXISTS) === true) {
         await log(`  WARN: SelectAdvIfExists - Skipped selecting item number "${item}" in selector "${ASB.get("ELEMENT_SELECTOR")}" without failing the test`);
-        ASB.set(IF_EXISTS, false)
+        ASB.set(IF_EXISTS, false);
         return true;
       }
       await log(`  ERROR: ${listElement} could not select "${item}"\n
       ${error.message}`);
     }
-
   }
   return success;
 }
 
 //Resolves stale element
-export async function refreshElement(
-  element: WebdriverIO.Element
-): Promise<WebdriverIO.Element> {
+export async function refreshElement(element: WebdriverIO.Element): Promise<WebdriverIO.Element> {
   return await browser.$(element.selector);
 }
 
@@ -1320,9 +1208,9 @@ async function findElement(selector: string): Promise<WebdriverIO.Element> {
   try {
     return await browser.$(selector);
   } catch (error: unknown) {
-    if (typeof error === 'object' && error !== null && 'message' in error) {
+    if (typeof error === "object" && error !== null && "message" in error) {
       const errorMessage = (error as Error).message;
-      if (errorMessage.includes('stale')) {
+      if (errorMessage.includes("stale")) {
         // Element is stale, so we need to recreate it
         return await browser.$(selector);
       }
@@ -1331,15 +1219,12 @@ async function findElement(selector: string): Promise<WebdriverIO.Element> {
   }
 }
 
-export async function getListValues(selectElement: WebdriverIO.Element
-): Promise<string> {
-
+export async function getListValues(selectElement: WebdriverIO.Element): Promise<string> {
   const optionElements = await (await selectElement).getText();
   return optionElements;
 }
 
 export async function waitForElementToStopMoving(element: WebdriverIO.Element, timeout: number): Promise<void> {
-
   const initialLocation = await element.getLocation();
 
   return new Promise((resolve, reject) => {
@@ -1347,10 +1232,7 @@ export async function waitForElementToStopMoving(element: WebdriverIO.Element, t
 
     const checkMovement = () => {
       element.getLocation().then((currentLocation) => {
-        if (
-          currentLocation.x === initialLocation.x &&
-          currentLocation.y === initialLocation.y
-        ) {
+        if (currentLocation.x === initialLocation.x && currentLocation.y === initialLocation.y) {
           clearInterval(intervalId);
           resolve();
         }
@@ -1373,7 +1255,6 @@ export async function waitForElementToStopMoving(element: WebdriverIO.Element, t
  * @param expected
  */
 export async function expectAdv(actual: WebdriverIO.Element | string, assertionType: any, expected: any = null) {
-
   // Stub out assertions if the test has already ended
   if (ASB.get("TEST_ENDED")) {
     await log(`WARN: Assertion ${assertionType} skipped because the test has already ended`);
@@ -1391,74 +1272,72 @@ export async function expectAdv(actual: WebdriverIO.Element | string, assertionT
     assertionType = assertionType.replace(/\s+/g, "").toLowerCase();
 
     const getAssertionType = {
-      // perform the assertion 
-      equals: async () => (await softAssert(actual).toEqual(expected)),
-      contains: async () => (await softAssert(actual).toContain(expected)),
+      // perform the assertion
+      equals: async () => await softAssert(actual).toEqual(expected),
+      contains: async () => await softAssert(actual).toContain(expected),
 
-      exists: async () => (await softAssert(await actual).toBeExisting()),
-      doesexist: async () => (await softAssert(await actual).toBeExisting()),
-      doesnotexist: async () => (await softAssert(await actual).not.toBeExisting()),
+      exists: async () => await softAssert(await actual).toBeExisting(),
+      doesexist: async () => await softAssert(await actual).toBeExisting(),
+      doesnotexist: async () => await softAssert(await actual).not.toBeExisting(),
 
-      isenabled: async () => (await softAssert(await actual).toBeEnabled()),
-      isnotdisabled: async () => (await softAssert(await actual).toBeEnabled()),
+      isenabled: async () => await softAssert(await actual).toBeEnabled(),
+      isnotdisabled: async () => await softAssert(await actual).toBeEnabled(),
 
-      isnotenabled: async () => (await softAssert(await actual).not.toBeEnabled()),
-      isdisabled: async () => (await softAssert(await actual).toBeDisabled()),
+      isnotenabled: async () => await softAssert(await actual).not.toBeEnabled(),
+      isdisabled: async () => await softAssert(await actual).toBeDisabled(),
 
-      doesnotcontain: async () => (await softAssert(actual).not.toContain(expected)),
-      tohavetextcontaining: async () => (await softAssert(actual).toHaveTextContaining(expected)),
-      containstext: async () => (await softAssert(actual).toHaveTextContaining(expected)),
+      doesnotcontain: async () => await softAssert(actual).not.toContain(expected),
+      tohavetextcontaining: async () => await softAssert(actual).toHaveText(expect.stringContaining(expected)),
+      containstext: async () => await softAssert(actual).toHaveText(expect.stringContaining(expected)),
 
       default: async () => {
-        await softAssert(`"${originalAssertionType}"`).toEqual(" A valid assertion string ")
-        allureReporter.addAttachment('Assertion Failure: ', `Invalid Assertion Type = ${originalAssertionType}`, 'text/plain');
+        await softAssert(`"${originalAssertionType}"`).toEqual(" A valid assertion string ");
+        allureReporter.addAttachment("Assertion Failure: ", `Invalid Assertion Type = ${originalAssertionType}`, "text/plain");
         failed = true;
         invalidAssertion = true;
-        await log(`WARN: Invalid assertion type: "${originalAssertionType}" \r\n  Valid assertion types are: "equals" "contains" "exists" "is enabled" "is disabled" "does not exist" "does not contain" "to have text containing" "contains text" `);
+        await log(
+          `WARN: Invalid assertion type: "${originalAssertionType}" \r\n  Valid assertion types are: "equals" "contains" "exists" "is enabled" "is disabled" "does not exist" "does not contain" "to have text containing" "contains text" `
+        );
 
-        // This blocks actual expected values from being reported 
+        // This blocks actual expected values from being reported
         //throw new Error(`Invalid assertion type: "${originalAssertionType}"`);
-
-
-
       },
     };
 
-
-
     try {
-
       // if expected is nothing, then we are checking for the state of an element
       // otherwise we are comparing value of two strings
 
-      if (await expected === null) {
+      if ((await expected) === null) {
         // Take a string or element and return a valid element - set EXISTS in the switchboard
-        if (typeof actual === 'string') {
+        if (typeof actual === "string") {
           actual = await getValidElement(actual, "");
         }
 
         if (actual.error.message.includes(`no such element`)) {
-
           // If the assertion type is "does not" then the element should not exist
           if (!assertionType.includes(`not`)) {
             //await this.log(`FAIL:  Assert selector "${ASB.get("ELEMENT_SELECTOR")}" ${originalAssertionType} `);
-            failed = true
-            errorMessage = actual.error.message
+            failed = true;
+            errorMessage = actual.error.message;
             ASB.set("alreadyFailed", true);
           }
         }
       }
 
       // perform the assertion or report an unknown assertion type
-      (await getAssertionType[assertionType] || await getAssertionType['default'])();
+      ((await getAssertionType[assertionType]) || (await getAssertionType["default"]))();
 
-      if (invalidAssertion) { // If the assertion type is invalid
+      if (invalidAssertion) {
+        // If the assertion type is invalid
         // Skip the validation reporting
-      } else { //  If the assertion failed
+      } else {
+        //  If the assertion failed
 
-        if (failed) { // and if the assertion failed
-          allureReporter.addAttachment(`Assertion Fail: `, `"${actual}" ${originalAssertionType} "${expected}"`, 'text/plain');
-          if (typeof actual === 'string') {
+        if (failed) {
+          // and if the assertion failed
+          allureReporter.addAttachment(`Assertion Fail: `, `"${actual}" ${originalAssertionType} "${expected}"`, "text/plain");
+          if (typeof actual === "string") {
             await this.log(`FAIL:  "${actual}" ${originalAssertionType} "${expected}"`);
             await expect(actual).toEqual(`${originalAssertionType} "${expected}"`);
           } else {
@@ -1467,32 +1346,28 @@ export async function expectAdv(actual: WebdriverIO.Element | string, assertionT
           }
           //throw new Error(`${errorMessage}`);  // Re-throw the error to ensure test failure
         } else {
-          allureReporter.addAttachment(`Assertion Pass: `, `"${actual}" ${originalAssertionType} "${expected}"`, 'text/plain');
+          allureReporter.addAttachment(`Assertion Pass: `, `"${actual}" ${originalAssertionType} "${expected}"`, "text/plain");
           // Additional logging for passed assertions
 
-          if (typeof actual === 'string') {
+          if (typeof actual === "string") {
             await this.log(`PASS:  "${actual}" ${originalAssertionType} "${expected}"`);
           } else {
             await this.log(`PASS: Selector "${ASB.get("ELEMENT_SELECTOR")}" ${originalAssertionType} failed`);
           }
         }
       }
-
     } catch (error) {
-
-      if (await expected === null) {
+      if ((await expected) === null) {
         // This is an element state check
         ASB.set("alreadyFailed", true);
         await this.log(`FAIL: Object assertion - Expected: selector "${ASB.get("ELEMENT_SELECTOR")}" ${originalAssertionType}\r\n       Actual - ${error}`);
-        allureReporter.addAttachment('Object assertion Error: "${ASB.get("ELEMENT_SELECTOR")}" ${originalAssertionType} ', error.toString(), 'text/plain');
-
+        allureReporter.addAttachment('Object assertion Error: "${ASB.get("ELEMENT_SELECTOR")}" ${originalAssertionType} ', error.toString(), "text/plain");
       } else {
         // This was a string comparison
         ASB.set("alreadyFailed", true);
         //@ts-ignore - TS does not like the element.locator, but this works
         await this.log(`FAIL: String assertion error : "${actual}" ${originalAssertionType} "${expected}"\r\n       ${error}`);
-        allureReporter.addAttachment(`String assertion Error: ${actual}}" ${originalAssertionType} `, error.toString(), 'text/plain');
-
+        allureReporter.addAttachment(`String assertion Error: ${actual}}" ${originalAssertionType} `, error.toString(), "text/plain");
       }
 
       // softassert will not throw an error until the end of the test
@@ -1506,18 +1381,15 @@ export async function expectAdv(actual: WebdriverIO.Element | string, assertionT
   }
 }
 
-
-
 /**
  * Gets last segment of current URL after splitting by "/".
  * @returns {Promise<string>} The last URL segment.
  */
 export async function getPageName(): Promise<string> {
   const currentURL = await browser.getUrl();
-  const urlSegments = currentURL.split('/');
+  const urlSegments = currentURL.split("/");
   return urlSegments[urlSegments.length - 1];
 }
-
 
 /**
  * Parses a string of key-value pairs and updates the SwitchBoard state with those values.
@@ -1531,7 +1403,6 @@ export async function getPageName(): Promise<string> {
  */
 
 export function parseToASB(testData: string) {
-
   const regex = /(\w+)=("([^"]*)"|\b\w+\b)/g;
   let match;
 
@@ -1550,23 +1421,22 @@ export function parseToASB(testData: string) {
   }
 }
 
-
 function getElementTypeFromSelector(selector: string) {
-  let locatorType: 'xpath' | 'css';
+  let locatorType: "xpath" | "css";
   let elementType: string;
 
   // XPath selectors start with // or .//
   if (selector.startsWith(`//`) || selector.startsWith(`.//`) || selector.startsWith(`\(`)) {
-    locatorType = 'xpath';
+    locatorType = "xpath";
     // Extract the element type from the XPath
-    elementType = selector.split('[')[0];
+    elementType = selector.split("[")[0];
   } else {
-    locatorType = 'css';
+    locatorType = "css";
     // Return Generic xPath selector for CSS
     elementType = `\\*`;
   }
 
-  ASB.set('locatorType', locatorType);
+  ASB.set("locatorType", locatorType);
 
   return elementType;
 }
